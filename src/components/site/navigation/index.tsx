@@ -1,3 +1,5 @@
+"use client";
+
 import { ModeToggle } from "@/components/global/ModeToggle";
 import { UserButton } from "@clerk/nextjs";
 import { User } from "@clerk/nextjs/server";
