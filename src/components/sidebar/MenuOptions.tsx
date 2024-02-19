@@ -8,7 +8,12 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
-import { ChevronsUpDown, CompassIcon, Menu, PlusCircleIcon } from "lucide-react";
+import {
+  ChevronsUpDown,
+  CompassIcon,
+  Menu,
+  PlusCircleIcon,
+} from "lucide-react";
 import clsx from "clsx";
 import { AspectRatio } from "../ui/aspect-ratio";
 import Image from "next/image";
@@ -22,6 +27,8 @@ import {
   CommandList,
 } from "../ui/command";
 import Link from "next/link";
+import CustomModal from "../global/CustomModal";
+import { useModal } from "@/providers/modal-provider";
 
 type TProps = {
   defaultOpen?: boolean;
@@ -43,6 +50,7 @@ const MenuOptions = ({
   defaultOpen,
 }: TProps) => {
   const [isMounted, setIsMounted] = useState(false);
+  const { setOpen } = useModal();
 
   const openState = useMemo(
     () => (defaultOpen ? { open: true } : {}),
@@ -223,13 +231,29 @@ const MenuOptions = ({
                 {(user?.role === "AGENCY_OWNER" ||
                   user?.role === "AGENCY_ADMIN") && (
                   <SheetClose>
-                    <Button className="w-full flex gap-2">
+                    <Button
+                      className="w-full flex gap-2"
+                      onClick={() => {
+                        setOpen(
+                          <CustomModal
+                            title="Create A Subaccount"
+                            subheading="You can switch between your agency account and the subaccount from the sidebar"
+                          >
+                            <div>hello</div>
+                            {/* <SubAccountDetails
+                            agencyDetails={user?.Agency as Agency}
+                            userId={user?.id as string}
+                            userName={user?.name}
+                          /> */}
+                          </CustomModal>
+                        );
+                      }}
+                    >
                       <PlusCircleIcon size={15} />
                       Create Sub Account
                     </Button>
                   </SheetClose>
                 )}
-
               </Command>
             </PopoverContent>
           </Popover>
