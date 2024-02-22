@@ -4,6 +4,7 @@ import {
   SubAccount,
   AgencySidebarOption,
   SubAccountSidebarOption,
+  Agency,
 } from "@prisma/client";
 import React, { useEffect, useMemo, useState } from "react";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
@@ -29,6 +30,9 @@ import {
 import Link from "next/link";
 import CustomModal from "../global/CustomModal";
 import { useModal } from "@/providers/modal-provider";
+import SubAccountDetails from "../forms/SubAccountDetails";
+import { Separator } from "../ui/separator";
+import { icons } from "@/lib/constants";
 
 type TProps = {
   defaultOpen?: boolean;
@@ -64,11 +68,7 @@ const MenuOptions = ({
   if (!isMounted) return;
 
   return (
-    <Sheet
-      modal={false}
-      open={true}
-      // {...openState}
-    >
+    <Sheet modal={false} {...openState}>
       <SheetTrigger
         asChild
         className="absolute left-4 top-4 z-[100] md:!hidden felx"
@@ -239,12 +239,11 @@ const MenuOptions = ({
                             title="Create A Subaccount"
                             subheading="You can switch between your agency account and the subaccount from the sidebar"
                           >
-                            <div>hello</div>
-                            {/* <SubAccountDetails
-                            agencyDetails={user?.Agency as Agency}
-                            userId={user?.id as string}
-                            userName={user?.name}
-                          /> */}
+                            <SubAccountDetails
+                              agencyDetails={user?.Agency as Agency}
+                              userId={user?.id as string}
+                              userName={user?.name}
+                            />
                           </CustomModal>
                         );
                       }}
@@ -257,6 +256,42 @@ const MenuOptions = ({
               </Command>
             </PopoverContent>
           </Popover>
+
+          <p className="text-muted-foreground text-xs mb-2"> MENU LINKS </p>
+          <Separator className="mb-4" />
+          <nav className="relative">
+            <Command className="rounded-lg overflow-visible bg-transparent">
+              <CommandInput placeholder="Search..." />
+              <CommandList className="py-4 overflow-visible">
+                <CommandEmpty>No Results Found</CommandEmpty>
+
+                <CommandGroup className="overflow-visible">
+                  {sidebarOpt.map((sidebarOptions) => {
+                    let val;
+
+                    const sidebarIc = icons.find(
+                      (icon) => icon.value === sidebarOptions.icon
+                    );
+                    if (sidebarIc) val = <sidebarIc.path />;
+                    return (
+                      <CommandItem
+                        key={sidebarOptions.id}
+                        className="md:w-[320px] w-full"
+                      >
+                        <Link
+                          href={sidebarOptions.link}
+                          className="flex items-center gap-2 hover:bg-transparent rounded-md transition-all md:w-full w-[320px]"
+                        >
+                          {val}
+                          <span>{sidebarOptions.name}</span>
+                        </Link>
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </nav>
         </div>
       </SheetContent>
     </Sheet>
