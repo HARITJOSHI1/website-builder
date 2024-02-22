@@ -3,9 +3,10 @@
 import { clerkClient } from "@clerk/nextjs";
 import { db } from "./db";
 import { User as AuthUser, currentUser } from "@clerk/nextjs/server";
-import { Agency, Plan, Role, User } from "@prisma/client";
+import { Agency, Plan, Role, SubAccount, User } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { use } from "react";
+import { v4 } from "uuid";
 
 export const getAuthUserDetails = async (authUser: AuthUser | null) => {
   const user = await db.user.findUnique({
@@ -298,7 +299,6 @@ export const upsertAgency = async (agency: Agency, price?: Plan) => {
   }
 };
 
-
 export const getNotificationsAndUser = async (id: string) => {
   try {
     const notifs = await db.notification.findMany({
@@ -311,4 +311,91 @@ export const getNotificationsAndUser = async (id: string) => {
   } catch (err) {
     console.log(err);
   }
+};
+
+export const upsertSubAccount = async (subAcc: SubAccount) => {
+  if (!subAcc.companyEmail) return null;
+
+  const agency = await db.user.findFirst({
+    where: {
+      Agency: {
+        id: subAcc.agencyId,
+      },
+
+      role: "AGENCY_OWNER",
+    },
+  });
+
+  if (!agency) {
+    console.log("error");
+    return;
+  }
+
+  const permissionId = v4();
+  const res = await db.subAccount.upsert({
+    where: {
+      id: subAcc.id,
+    },
+
+    update: subAcc,
+
+    create: {
+      ...subAcc,
+      Permissions: {
+        create: {
+          id: permissionId,
+          access: true,
+          email: agency.email,
+        },
+
+        connect: {
+          subAccountId: subAcc.id,
+          id: permissionId,
+        },
+      },
+
+      Pipeline: {
+        create: {
+          name: "Lead cycle",
+        },
+      },
+
+      SidebarOption: {
+        create: [
+          {
+            name: "Dashboard",
+            icon: "category",
+            link: `/agency/${agency.id}`,
+          },
+          {
+            name: "Launchpad",
+            icon: "clipboardIcon",
+            link: `/agency/${agency.id}/launchpad`,
+          },
+          {
+            name: "Billing",
+            icon: "payment",
+            link: `/agency/${agency.id}/billing`,
+          },
+          {
+            name: "Settings",
+            icon: "settings",
+            link: `/agency/${agency.id}/settings`,
+          },
+          {
+            name: "Sub Accounts",
+            icon: "person",
+            link: `/agency/${agency.id}/all-subaccounts`,
+          },
+          {
+            name: "Team",
+            icon: "shield",
+            link: `/agency/${agency.id}/team`,
+          },
+        ],
+      },
+    },
+  });
+
+  return res;
 };

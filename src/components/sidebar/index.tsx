@@ -14,6 +14,7 @@ const findSubAcc = (
   id: string
 ) => user?.Agency?.SubAccount.find((subAcc) => subAcc.id === id);
 
+
 const Sidebar = async ({ id, type }: Props) => {
   const authUser = await currentUser();
   const user = await getAuthUserDetails(authUser);
