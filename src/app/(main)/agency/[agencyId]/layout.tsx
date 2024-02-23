@@ -1,10 +1,12 @@
+import BlurPage from "@/components/global/BlurPage";
+import InfoBar from "@/components/global/InfoBar";
 import Sidebar from "@/components/sidebar";
 import Unauthorized from "@/components/unauthorized";
 import {
   getNotificationsAndUser,
   verifyAndAcceptInvitation,
 } from "@/lib/queries";
-import { FuncReturnType } from "@/types";
+import { FuncReturnType } from "@/lib/types";
 import { currentUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -24,15 +26,22 @@ const layout = async ({ params, children }: TProps) => {
   if (!(authUser.privateMetadata.role as string).includes("AGENCY"))
     return <Unauthorized />;
 
-  let allNotif: FuncReturnType<typeof getNotificationsAndUser> = [];
+  let allNotifs: FuncReturnType<typeof getNotificationsAndUser> = [];
 
   const notifications = await getNotificationsAndUser(agencyId);
-  if (notifications) allNotif = notifications;
+  if (notifications) allNotifs = notifications;
 
   return (
     <div className="h-screen overflow-hidden" suppressHydrationWarning>
       <Sidebar id={params.agencyId} type="agency" />
-      <div className="md:pl-[300px]"> {children} </div>
+
+      <div className="md:pl-[300px]">
+        <InfoBar notifications={allNotifs} />
+        <div className="relative">
+          <BlurPage>{children}</BlurPage>
+        </div>
+      </div>
+      {/* <div className="md:pl-[300px]"> {children} </div> */}
     </div>
   );
 };

@@ -2,7 +2,7 @@ import { getAuthUserDetails } from "@/lib/queries";
 import { currentUser } from "@clerk/nextjs";
 import React from "react";
 import MenuOptions from "./MenuOptions";
-import { FuncReturnType } from "@/types";
+import { FuncReturnType } from "@/lib/types";
 
 type Props = {
   id: string;
