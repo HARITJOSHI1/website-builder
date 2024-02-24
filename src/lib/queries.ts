@@ -400,12 +400,51 @@ export const upsertSubAccount = async (subAcc: SubAccount) => {
   return res;
 };
 
-
 export const getUserPermissions = async (userId: string) => {
   const response = await db.user.findUnique({
     where: { id: userId },
-    select: { Permissions: { include: { SubAccount: true} } },
-  })
+    select: { Permissions: { include: { SubAccount: true } } },
+  });
 
-  return response
-}
+  return response;
+};
+
+export const updateUser = async (user: Partial<User>) => {
+  const response = await db.user.update({
+    where: { email: user.email },
+    data: { ...user },
+  });
+
+  await clerkClient.users.updateUserMetadata(response.id, {
+    privateMetadata: {
+      role: user.role || "SUBACCOUNT_USER",
+    },
+  });
+
+  return response;
+};
+
+export const changeUserPermission = async (
+  permissionId: string,
+  email: string,
+  subAccountId: string,
+  permission: boolean
+) => {
+  const res = await db.permissions.upsert({
+    where: {
+      id: permissionId, 
+    },
+
+    update: {
+      access: permission,
+    },
+
+    create: {
+      email,
+      subAccountId,
+      access: permission,
+    },
+  });
+
+  return res;
+};
