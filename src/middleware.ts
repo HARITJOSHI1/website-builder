@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 // Please edit this to allow other routes to be public as needed.
 // See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your Middleware
 export default authMiddleware({
-  publicRoutes: ["/site", "/api/uploadthing"],
+  publicRoutes: ["/site", "/api/uploadthing", "/api/(.*)"],
   async beforeAuth(auth, req) {},
   async afterAuth(auth, req) {
     // rewrite url for domain
@@ -27,24 +27,20 @@ export default authMiddleware({
       return NextResponse.rewrite(
         new URL(`/${customSubDomain}${pathnameWithSearchParams}`, req.url)
       );
-
     else if (url.pathname === "/sign-in" || url.pathname === "/sign-up") {
       return NextResponse.redirect(new URL(`/agency/sign-in`, req.url));
-    }
-
-    else if (
+    } else if (
       url.pathname === "/" ||
-      (url.pathname === "/site" &&
-       url.host === process.env.NEXT_PUBLIC_DOMAIN)
+      (url.pathname === "/site" && url.host === process.env.NEXT_PUBLIC_DOMAIN)
     ) {
       return NextResponse.rewrite(new URL("/site", req.url));
-    }
-
-    else if (
+    } else if (
       url.pathname.startsWith("/agency") ||
       url.pathname.startsWith("/subaccount")
     ) {
-      return NextResponse.rewrite(new URL(`${pathnameWithSearchParams}`, req.url));
+      return NextResponse.rewrite(
+        new URL(`${pathnameWithSearchParams}`, req.url)
+      );
     }
   },
 });

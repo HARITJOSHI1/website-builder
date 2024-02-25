@@ -1,9 +1,9 @@
-import React from 'react'
+import { createAPICaller } from "@/server/server";
+import { cookies } from "next/headers";
+import React from "react";
 
-const Domain = () => {
-  return (
-    <div>domain</div>
-  )
-}
+const page = async () => {
+  return <div>domain</div>;
+};
 
-export default Domain
+export default page;
