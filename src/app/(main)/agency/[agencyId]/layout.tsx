@@ -41,7 +41,6 @@ const layout = async ({ params, children }: TProps) => {
           <BlurPage>{children}</BlurPage>
         </div>
       </div>
-      {/* <div className="md:pl-[300px]"> {children} </div> */}
     </div>
   );
 };

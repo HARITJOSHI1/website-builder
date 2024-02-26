@@ -1,14 +1,12 @@
 import AgencyDetails from "@/components/forms/AgencyDetails";
 import UserDetails from "@/components/forms/UserDetails";
 import { db } from "@/lib/db";
-import { getAuthUserDetails } from "@/lib/queries";
 import { currentUser } from "@clerk/nextjs";
 import React from "react";
 
 type TProps = {
   params: { agencyId: string };
 };
-
 
 const page = async ({ params }: TProps) => {
   const authUser = await currentUser();

@@ -23,7 +23,7 @@ type TProps = {
   notifications: NotificationWithUser | [];
   role?: Role;
   className?: string;
-  subAccountId: string;
+  subAccountId?: string;
 };
 
 const InfoBar = ({ notifications, role, subAccountId }: TProps) => {
