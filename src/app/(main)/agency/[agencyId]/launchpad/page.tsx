@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { db } from "@/lib/db";
-import { ListItem, List } from "@tremor/react";
 import { CheckCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

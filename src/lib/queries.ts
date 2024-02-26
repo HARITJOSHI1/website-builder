@@ -432,7 +432,7 @@ export const changeUserPermission = async (
 ) => {
   const res = await db.permissions.upsert({
     where: {
-      id: permissionId, 
+      id: permissionId,
     },
 
     update: {
@@ -448,3 +448,20 @@ export const changeUserPermission = async (
 
   return res;
 };
+
+export const getSubAccountDetails = async (subAccId: string) => {
+  const res = await db.subAccount.findUnique({
+    where: { id: subAccId },
+  });
+
+  return res;
+};
+
+export const deleteSubAccount = async (subaccountId: string) => {
+  const response = await db.subAccount.delete({
+    where: {
+      id: subaccountId,
+    },
+  })
+  return response
+}
