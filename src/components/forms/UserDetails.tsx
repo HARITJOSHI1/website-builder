@@ -18,6 +18,7 @@ import {
   updateUser,
 } from "@/lib/queries";
 import { currentUser } from "@clerk/nextjs";
+import { User as AuthUser } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,8 +55,8 @@ import { v4 } from "uuid";
 
 type TProps = {
   type: "agency" | "subaccount";
-  id: string;
-  subAccounts: SubAccount[];
+  id?: string;
+  subAccounts?: SubAccount[];
   userData?: Partial<User>;
 };
 
@@ -75,9 +76,7 @@ const UserDetails = ({ id, type, userData, subAccounts }: TProps) => {
   useEffect(() => {
     if (data.user) {
       const fetchDetails = async () => {
-        const authUser = await currentUser();
-        const res = await getAuthUserDetails(authUser);
-
+        const res = await getAuthUserDetails();
         if (res) setAuthUserData(res);
       };
 

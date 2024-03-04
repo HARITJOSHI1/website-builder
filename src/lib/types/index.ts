@@ -1,5 +1,6 @@
 import { Notification, Prisma, Role, User } from "@prisma/client";
 import { getAuthUserDetails, getUserPermissions } from "../queries";
+import { db } from "../db";
 
 export type FuncReturnType<T extends (...args: any) => any> = Awaited<
   ReturnType<T>
@@ -26,3 +27,20 @@ export type UserWithPermissionsAndSubAccounts = Prisma.PromiseReturnType<
 
 export type AuthUserWithAgencySigebarOptionsSubAccounts =
   Prisma.PromiseReturnType<typeof getAuthUserDetails>;
+
+const __getUsersWithAgencySubAccountPermissionsSidebarOptions = async (
+  agencyId: string
+) => {
+  return await db.user.findFirst({
+    where: { Agency: { id: agencyId } },
+    include: {
+      Agency: { include: { SubAccount: true } },
+      Permissions: { include: { SubAccount: true } },
+    },
+  });
+};
+
+export type UsersWithAgencySubAccountPermissionsSidebarOptions =
+  Prisma.PromiseReturnType<
+    typeof __getUsersWithAgencySubAccountPermissionsSidebarOptions
+  >;
