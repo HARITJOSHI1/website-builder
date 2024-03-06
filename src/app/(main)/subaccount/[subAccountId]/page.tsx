@@ -1,8 +1,8 @@
 import React from "react";
 
-type Props = {};
+type TProps = {};
 
-const page = (props: Props) => {
+const page = (TProps: TProps) => {
   return <div>subaccount/id</div>;
 };
 

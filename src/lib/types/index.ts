@@ -1,5 +1,5 @@
 import { Notification, Prisma, Role, User } from "@prisma/client";
-import { getAuthUserDetails, getUserPermissions } from "../queries";
+import { getAuthUserDetails, getMedia, getUserPermissions } from "../queries";
 import { db } from "../db";
 
 export type FuncReturnType<T extends (...args: any) => any> = Awaited<
@@ -44,3 +44,11 @@ export type UsersWithAgencySubAccountPermissionsSidebarOptions =
   Prisma.PromiseReturnType<
     typeof __getUsersWithAgencySubAccountPermissionsSidebarOptions
   >;
+
+
+  export type SubAccountMedia =
+  Prisma.PromiseReturnType<
+    typeof getMedia
+  >;
+
+  export type CreateMediaType = Prisma.MediaCreateWithoutSubaccountInput

@@ -138,7 +138,9 @@ const UserDetails = ({ id, type, userData, subAccounts }: TProps) => {
       ).forEach(async (subaccount) => {
         await saveActivityLogsNotification({
           agencyId: undefined,
-          description: `Updated ${userData?.name} information`,
+          description: `Updated ${
+            userData?.name || data?.user?.name
+          } information`,
           subAccountId: subaccount.id,
         });
       });
@@ -173,23 +175,43 @@ const UserDetails = ({ id, type, userData, subAccounts }: TProps) => {
 
     const res = await changeUserPermission(
       permissionId ? permissionId : v4(),
-      data.user.email,
+      userData?.email || data.user.email,
       subAccountId,
       val
     );
 
+    console.log("permssss", val, permissionId, subAccountPermissions);
+
     if (type === "agency") {
-      await saveActivityLogsNotification({
-        agencyId: authUserData?.Agency?.id,
-        description: `Gave ${userData?.name} access to | ${
-          subAccountPermissions?.Permissions.find(
+      if (val) {
+        await saveActivityLogsNotification({
+          agencyId: authUserData?.Agency?.id,
+          description: `Gave ${
+            userData?.name || data?.user?.name
+          } access to | ${
+            subAccountPermissions?.Permissions.find(
+              (p) => p.subAccountId === subAccountId && p.access
+            )?.SubAccount.name
+          } `,
+          subAccountId: subAccountPermissions?.Permissions.find(
             (p) => p.subAccountId === subAccountId
-          )?.SubAccount.name
-        } `,
-        subAccountId: subAccountPermissions?.Permissions.find(
-          (p) => p.subAccountId === subAccountId
-        )?.SubAccount.id,
-      });
+          )?.SubAccount.id,
+        });
+      } else {
+        await saveActivityLogsNotification({
+          agencyId: authUserData?.Agency?.id,
+          description: `Removed ${
+            userData?.name || data?.user?.name
+          } access to | ${
+            subAccountPermissions?.Permissions.find(
+              (p) => p.subAccountId === subAccountId && !p.access
+            )?.SubAccount.name
+          } `,
+          subAccountId: subAccountPermissions?.Permissions.find(
+            (p) => p.subAccountId === subAccountId
+          )?.SubAccount.id,
+        });
+      }
     }
 
     if (res) {
@@ -212,7 +234,7 @@ const UserDetails = ({ id, type, userData, subAccounts }: TProps) => {
         description: "Could not update permissions",
       });
     }
-    router.refresh();
+
     setLoadingPermissions(false);
   };
 
@@ -370,12 +392,14 @@ const UserDetails = ({ id, type, userData, subAccounts }: TProps) => {
                         <Switch
                           disabled={loadingPermissions}
                           checked={subAccountPermissionsDetails?.access}
-                          onCheckedChange={(permission) => {
-                            onChangePermission(
+                          onCheckedChange={async (permission) => {
+                            await onChangePermission(
                               subAccount.id,
                               permission,
                               subAccountPermissionsDetails?.id
                             );
+
+                            router.refresh();
                           }}
                         />
                       </div>

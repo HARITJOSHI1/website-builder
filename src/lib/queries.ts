@@ -7,9 +7,10 @@ import { Agency, Plan, Role, SubAccount, User } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { use } from "react";
 import { v4 } from "uuid";
+import { CreateMediaType } from "./types";
 
 export const getAuthUserDetails = async (authUser: AuthUser | null = null) => {
-  if(!authUser) authUser = await currentUser();
+  if (!authUser) authUser = await currentUser();
 
   const user = await db.user.findUnique({
     where: {
@@ -365,34 +366,44 @@ export const upsertSubAccount = async (subAcc: SubAccount) => {
       SidebarOption: {
         create: [
           {
-            name: "Dashboard",
-            icon: "category",
-            link: `/agency/${agency.id}`,
-          },
-          {
             name: "Launchpad",
             icon: "clipboardIcon",
-            link: `/agency/${agency.id}/launchpad`,
-          },
-          {
-            name: "Billing",
-            icon: "payment",
-            link: `/agency/${agency.id}/billing`,
+            link: `/subaccount/${subAcc.id}/launchpad`,
           },
           {
             name: "Settings",
             icon: "settings",
-            link: `/agency/${agency.id}/settings`,
+            link: `/subaccount/${subAcc.id}/settings`,
           },
           {
-            name: "Sub Accounts",
+            name: "Funnels",
+            icon: "pipelines",
+            link: `/subaccount/${subAcc.id}/funnels`,
+          },
+          {
+            name: "Media",
+            icon: "database",
+            link: `/subaccount/${subAcc.id}/media`,
+          },
+          {
+            name: "Automations",
+            icon: "chip",
+            link: `/subaccount/${subAcc.id}/automations`,
+          },
+          {
+            name: "Pipelines",
+            icon: "flag",
+            link: `/subaccount/${subAcc.id}/pipelines`,
+          },
+          {
+            name: "Contacts",
             icon: "person",
-            link: `/agency/${agency.id}/all-subaccounts`,
+            link: `/subaccount/${subAcc.id}/contacts`,
           },
           {
-            name: "Team",
-            icon: "shield",
-            link: `/agency/${agency.id}/team`,
+            name: "Dashboard",
+            icon: "category",
+            link: `/subaccount/${subAcc.id}`,
           },
         ],
       },
@@ -483,12 +494,11 @@ export const deleteUser = async (userId: string) => {
     privateMetadata: {
       role: undefined,
     },
-  })
-  const deletedUser = await db.user.delete({ where: { id: userId } })
+  });
+  const deletedUser = await db.user.delete({ where: { id: userId } });
 
-  return deletedUser
-}
-
+  return deletedUser;
+};
 
 export const sendInvitation = async (
   role: Role,
@@ -497,7 +507,7 @@ export const sendInvitation = async (
 ) => {
   const resposne = await db.invitation.create({
     data: { email, agencyId, role },
-  })
+  });
 
   try {
     const invitation = await clerkClient.invitations.createInvitation({
@@ -507,11 +517,43 @@ export const sendInvitation = async (
         throughInvitation: true,
         role,
       },
-    })
+    });
   } catch (error) {
-    console.log(error)
-    throw error
+    console.log(error);
+    throw error;
   }
 
-  return resposne
-}
+  return resposne;
+};
+
+export const getMedia = async (subId: string) => {
+  const mediaFiles = await db.subAccount.findUnique({
+    where: { id: subId },
+    include: { Media: true },
+  });
+
+  return mediaFiles;
+};
+
+export const createMedia = async (
+  subaccountId: string,
+  mediaFile: CreateMediaType
+) => {
+  const response = await db.media.create({
+    data: {
+      link: mediaFile.link,
+      name: mediaFile.name,
+      subAccountId: subaccountId,
+    },
+  });
+
+  return response;
+};
+
+export const deleteMedia = async (fileId: string) => {
+  const res = await db.media.delete({
+    where: { id: fileId },
+  });
+
+  return res;
+};

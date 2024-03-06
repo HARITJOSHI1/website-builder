@@ -26,7 +26,6 @@ const page = async ({ params }: Props) => {
 
   const allDetailsExist =
     agencyDetails.address &&
-    agencyDetails.address &&
     agencyDetails.agencyLogo &&
     agencyDetails.city &&
     agencyDetails.companyEmail &&

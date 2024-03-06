@@ -60,7 +60,7 @@ const InfoBar = ({ notifications, role, subAccountId }: TProps) => {
               </div>
             </SheetTrigger>
 
-            <SheetContent className="mt-4 mr-4 pr-4 flex flex-col">
+            <SheetContent className="mt-4 mr-4 pr-4 flex overflow-x-scroll flex-col">
               <SheetHeader className="text-left">
                 <SheetTitle>Notifications</SheetTitle>
                 <SheetDescription>
@@ -75,7 +75,7 @@ const InfoBar = ({ notifications, role, subAccountId }: TProps) => {
               {allNotifications?.map((notification) => (
                 <div
                   key={notification.id}
-                  className="flex flex-col gap-y-2 mb-2 overflow-x-scroll text-ellipsis"
+                  className="flex flex-col gap-y-2 mb-2 text-ellipsis"
                 >
                   <div className="flex gap-2">
                     <Avatar>

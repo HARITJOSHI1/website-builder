@@ -41,10 +41,9 @@ const page = async ({ params }: TProps) => {
       <DataTable
         actionButtonText={
           <>
-            <Plus size={15}/> Add
+            <Plus size={15} /> Add
           </>
         }
-
         modalChildren={<SendInvitation agencyId={params.agencyId} />}
         filterValue="name"
         columns={columns}

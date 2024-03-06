@@ -3,6 +3,7 @@ import InfoBar from "@/components/global/InfoBar";
 import Sidebar from "@/components/sidebar";
 import Unauthorized from "@/components/unauthorized";
 import {
+  getAuthUserDetails,
   getNotificationsAndUser,
   verifyAndAcceptInvitation,
 } from "@/lib/queries";
@@ -29,7 +30,7 @@ const layout = async ({ params, children }: TProps) => {
   let allNotifs: FuncReturnType<typeof getNotificationsAndUser> = [];
 
   const notifications = await getNotificationsAndUser(agencyId);
-  if (notifications) allNotifs = notifications;
+  if (notifications) allNotifs = notifications.filter(({agencyId}) => agencyId === params.agencyId);
 
   return (
     <div className="h-screen overflow-hidden" suppressHydrationWarning>
