@@ -2,7 +2,7 @@
 
 import { NotificationWithUser } from "@/lib/types";
 import { UserButton } from "@clerk/nextjs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import {
   Sheet,
@@ -18,6 +18,8 @@ import { Switch } from "../ui/switch";
 import { Role } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ModeToggle } from "./ModeToggle";
+import { useRouter } from "next/navigation";
+import { getNotificationsAndUser } from "@/lib/queries";
 
 type TProps = {
   notifications: NotificationWithUser | [];
@@ -27,6 +29,7 @@ type TProps = {
 };
 
 const InfoBar = ({ notifications, role, subAccountId }: TProps) => {
+  const router = useRouter();
   const [allNotifications, setAllNotifications] = useState(notifications);
   const [showAll, setShowAll] = useState(true);
 
@@ -60,7 +63,27 @@ const InfoBar = ({ notifications, role, subAccountId }: TProps) => {
               </div>
             </SheetTrigger>
 
-            <SheetContent className="mt-4 mr-4 pr-4 flex overflow-x-scroll flex-col">
+            <SheetContent
+              className="mt-4 mr-4 pr-4 flex overflow-x-scroll flex-col"
+              onOpenAutoFocus={async () => {
+                if (notifications) {
+                  const newNotifications = await getNotificationsAndUser(
+                    notifications[0].agencyId
+                  );
+
+                  if (newNotifications) {
+                    if (role?.includes("AGENCY"))
+                      setAllNotifications(newNotifications);
+                    else
+                      setAllNotifications([
+                        ...newNotifications.filter(
+                          (n) => n.subAccountId === subAccountId
+                        ),
+                      ]);
+                  }
+                }
+              }}
+            >
               <SheetHeader className="text-left">
                 <SheetTitle>Notifications</SheetTitle>
                 <SheetDescription>
