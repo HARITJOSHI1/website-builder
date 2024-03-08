@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ModeToggle } from "./ModeToggle";
 import { useRouter } from "next/navigation";
 import { getNotificationsAndUser } from "@/lib/queries";
+import { Button } from "../ui/button";
 
 type TProps = {
   notifications: NotificationWithUser | [];
@@ -32,6 +33,7 @@ const InfoBar = ({ notifications, role, subAccountId }: TProps) => {
   const router = useRouter();
   const [allNotifications, setAllNotifications] = useState(notifications);
   const [showAll, setShowAll] = useState(true);
+  const [isCleaned, setIsCleaned] = useState(false);
 
   const handleClick = () => {
     if (!showAll) {
@@ -85,7 +87,18 @@ const InfoBar = ({ notifications, role, subAccountId }: TProps) => {
               }}
             >
               <SheetHeader className="text-left">
-                <SheetTitle>Notifications</SheetTitle>
+                <SheetTitle className="flex flex-row justify-between align-top">
+                  Notifications
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setAllNotifications([]);
+                      setIsCleaned(true)
+                    }}
+                  >
+                    Clear
+                  </Button>
+                </SheetTitle>
                 <SheetDescription>
                   {(role === "AGENCY_ADMIN" || role === "AGENCY_OWNER") && (
                     <Card className="flex items-center justify-between p-4">

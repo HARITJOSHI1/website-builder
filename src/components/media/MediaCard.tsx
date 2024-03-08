@@ -35,7 +35,7 @@ const MediaCard = ({ file }: Props) => {
   return (
     <AlertDialog>
       <DropdownMenu>
-        <article className="border w-full rounded-lg bg-slate-800">
+        <article className="border w-full rounded-lg bg-slate-800 use-automation-zoom-in">
           <div className="relative w-full h-40 md:h-60">
             <Image
               src={file.link}

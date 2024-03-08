@@ -8,7 +8,7 @@ import {
   Ticket,
   User,
 } from "@prisma/client";
-import { getAuthUserDetails, getMedia, getPipelineDetails, getUserPermissions } from "../queries";
+import { _getTicketsWithAllRelations, getAuthUserDetails, getMedia, getPipelineDetails, getTicketsWithTags, getUserPermissions } from "../queries";
 import { db } from "../db";
 import { z } from "zod";
 
@@ -82,3 +82,16 @@ export const CreateFunnelFormSchema = z.object({
 export const CreatePipelineFormSchema = z.object({
   name: z.string().min(1),
 });
+
+
+export const LaneFormSchema = z.object({
+  name: z.string().min(1),
+})
+
+
+export type TicketWithTags = Prisma.PromiseReturnType<typeof getTicketsWithTags>
+
+
+export type TicketDetails = Prisma.PromiseReturnType<
+  typeof _getTicketsWithAllRelations
+>
