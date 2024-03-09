@@ -15,13 +15,13 @@ type TAgency = {
 
 const Agency = async ({ searchParams }: TAgency) => {
   const authUser = await currentUser();
-  const agencyId = await verifyAndAcceptInvitation(authUser);
+  const agencyId = await verifyAndAcceptInvitation();
   console.log("AGENCY ID: ", { agencyId });
 
   await new Promise((r) => setTimeout(() => r(1), 5000));
   
   // get user details
-  const user = await getAuthUserDetails(authUser);
+  const user = await getAuthUserDetails();
 
   if (agencyId) {
     if (user?.role.includes("SUBACCOUNT")) return redirect("/subaccount");

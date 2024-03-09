@@ -1,14 +1,20 @@
 "use server";
 
-import { clerkClient } from "@clerk/nextjs";
+import { auth, clerkClient } from "@clerk/nextjs";
 import { db } from "./db";
-import { User as AuthUser, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs";
 import { Agency, Plan, Role, SubAccount, User } from "@prisma/client";
 import { redirect } from "next/navigation";
-import { use } from "react";
 import { v4 } from "uuid";
+import { CreateFunnelFormSchema, CreateMediaType } from "./types";
+import { z } from "zod";
 
-export const getAuthUserDetails = async (authUser: AuthUser | null) => {
+export const getAuthUserDetails = async (authUser: AuthUser | null = null) => {
+  if (!authUser) authUser = await currentUser();
+
+export const getAuthUserDetails = async () => {
+  const authUser = await currentUser();
+
   const user = await db.user.findUnique({
     where: {
       email: authUser?.emailAddresses[0].emailAddress,
@@ -138,7 +144,8 @@ const createUserTeam = async (agencyId: string, user: User) => {
   return res;
 };
 
-export const verifyAndAcceptInvitation = async (authUser: AuthUser | null) => {
+export const verifyAndAcceptInvitation = async () => {
+  const authUser = await currentUser();
   if (!authUser) return redirect("/sign-in");
 
   // find invited user
@@ -363,34 +370,44 @@ export const upsertSubAccount = async (subAcc: SubAccount) => {
       SidebarOption: {
         create: [
           {
-            name: "Dashboard",
-            icon: "category",
-            link: `/agency/${agency.id}`,
-          },
-          {
             name: "Launchpad",
             icon: "clipboardIcon",
-            link: `/agency/${agency.id}/launchpad`,
-          },
-          {
-            name: "Billing",
-            icon: "payment",
-            link: `/agency/${agency.id}/billing`,
+            link: `/subaccount/${subAcc.id}/launchpad`,
           },
           {
             name: "Settings",
             icon: "settings",
-            link: `/agency/${agency.id}/settings`,
+            link: `/subaccount/${subAcc.id}/settings`,
           },
           {
-            name: "Sub Accounts",
+            name: "Funnels",
+            icon: "pipelines",
+            link: `/subaccount/${subAcc.id}/funnels`,
+          },
+          {
+            name: "Media",
+            icon: "database",
+            link: `/subaccount/${subAcc.id}/media`,
+          },
+          {
+            name: "Automations",
+            icon: "chip",
+            link: `/subaccount/${subAcc.id}/automations`,
+          },
+          {
+            name: "Pipelines",
+            icon: "flag",
+            link: `/subaccount/${subAcc.id}/pipelines`,
+          },
+          {
+            name: "Contacts",
             icon: "person",
-            link: `/agency/${agency.id}/all-subaccounts`,
+            link: `/subaccount/${subAcc.id}/contacts`,
           },
           {
-            name: "Team",
-            icon: "shield",
-            link: `/agency/${agency.id}/team`,
+            name: "Dashboard",
+            icon: "category",
+            link: `/subaccount/${subAcc.id}`,
           },
         ],
       },
@@ -398,4 +415,378 @@ export const upsertSubAccount = async (subAcc: SubAccount) => {
   });
 
   return res;
+};
+
+export const getUserPermissions = async (userId: string) => {
+  const response = await db.user.findUnique({
+    where: { id: userId },
+    select: { Permissions: { include: { SubAccount: true } } },
+  });
+
+  return response;
+};
+
+export const updateUser = async (user: Partial<User>) => {
+  const response = await db.user.update({
+    where: { email: user.email },
+    data: { ...user },
+  });
+
+  await clerkClient.users.updateUserMetadata(response.id, {
+    privateMetadata: {
+      role: user.role || "SUBACCOUNT_USER",
+    },
+  });
+
+  return response;
+};
+
+export const changeUserPermission = async (
+  permissionId: string,
+  email: string,
+  subAccountId: string,
+  permission: boolean
+) => {
+  const res = await db.permissions.upsert({
+    where: {
+      id: permissionId,
+    },
+
+    update: {
+      access: permission,
+    },
+
+    create: {
+      email,
+      subAccountId,
+      access: permission,
+    },
+  });
+
+  return res;
+};
+
+export const getSubAccountDetails = async (subAccId: string) => {
+  const res = await db.subAccount.findUnique({
+    where: { id: subAccId },
+  });
+
+  return res;
+};
+
+export const deleteSubAccount = async (subaccountId: string) => {
+  const response = await db.subAccount.delete({
+    where: {
+      id: subaccountId,
+    },
+  });
+  return response;
+};
+
+export const getUser = async (id: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  return user;
+};
+
+export const deleteUser = async (userId: string) => {
+  await clerkClient.users.updateUserMetadata(userId, {
+    privateMetadata: {
+      role: undefined,
+    },
+  });
+  const deletedUser = await db.user.delete({ where: { id: userId } });
+
+  return deletedUser;
+};
+
+export const sendInvitation = async (
+  role: Role,
+  email: string,
+  agencyId: string
+) => {
+  const resposne = await db.invitation.create({
+    data: { email, agencyId, role },
+  });
+
+  try {
+    const invitation = await clerkClient.invitations.createInvitation({
+      emailAddress: email,
+      redirectUrl: process.env.NEXT_PUBLIC_URL,
+      publicMetadata: {
+        throughInvitation: true,
+        role,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+
+  return resposne;
+};
+
+export const getMedia = async (subId: string) => {
+  const mediaFiles = await db.subAccount.findUnique({
+    where: { id: subId },
+    include: { Media: true },
+  });
+
+  return mediaFiles;
+};
+
+export const createMedia = async (
+  subaccountId: string,
+  mediaFile: CreateMediaType
+) => {
+  const response = await db.media.create({
+    data: {
+      link: mediaFile.link,
+      name: mediaFile.name,
+      subAccountId: subaccountId,
+    },
+  });
+
+  return response;
+};
+
+export const deleteMedia = async (fileId: string) => {
+  const res = await db.media.delete({
+    where: { id: fileId },
+  });
+
+  return res;
+};
+
+export const getPipelineDetails = async (pipelineId: string) => {
+  const res = await db.pipeline.findUnique({
+    where: {
+      id: pipelineId,
+    },
+  });
+
+  return res;
+};
+
+export const getLanesWithTicketAndTags = async (pipelineId: string) => {
+  const response = await db.lane.findMany({
+    where: {
+      pipelineId,
+    },
+    orderBy: { order: "asc" },
+    include: {
+      Tickets: {
+        orderBy: {
+          order: "asc",
+        },
+        include: {
+          Tags: true,
+          Assigned: true,
+          Customer: true,
+        },
+      },
+    },
+  });
+  return response;
+};
+
+export const upsertFunnel = async (
+  subaccountId: string,
+  funnel: z.infer<typeof CreateFunnelFormSchema> & { liveProducts: string },
+  funnelId: string
+) => {
+  const response = await db.funnel.upsert({
+    where: { id: funnelId },
+    update: funnel,
+    create: {
+      ...funnel,
+      id: funnelId || v4(),
+      subAccountId: subaccountId,
+    },
+  });
+
+  return response;
+};
+
+export const upsertPipeline = async (
+  pipeline: Prisma.PipelineUncheckedCreateWithoutLaneInput
+) => {
+  const response = await db.pipeline.upsert({
+    where: { id: pipeline.id || v4() },
+    update: pipeline,
+    create: pipeline,
+  });
+
+  return response;
+};
+
+export const deletePipeline = async (pipelineId: string) => {
+  const response = await db.pipeline.delete({
+    where: { id: pipelineId },
+  });
+  return response;
+};
+
+export const updateLanesOrder = async (lanes: Lane[]) => {
+  try {
+    const updateTrans = lanes.map((lane) =>
+      db.lane.update({
+        where: {
+          id: lane.id,
+        },
+        data: {
+          order: lane.order,
+        },
+      })
+    );
+
+    await db.$transaction(updateTrans);
+    console.log("🟢 Done reordered 🟢");
+  } catch (error) {
+    console.log(error, "ERROR UPDATE LANES ORDER");
+  }
+};
+
+export const updateTicketsOrder = async (tickets: Ticket[]) => {
+  try {
+    const updateTrans = tickets.map((ticket) =>
+      db.ticket.update({
+        where: {
+          id: ticket.id,
+        },
+        data: {
+          order: ticket.order,
+          laneId: ticket.laneId,
+        },
+      })
+    );
+
+    await db.$transaction(updateTrans);
+    console.log("🟢 Done reordered 🟢");
+  } catch (error) {
+    console.log(error, "🔴 ERROR UPDATE TICKET ORDER");
+  }
+};
+
+export const upsertLane = async (lane: Prisma.LaneUncheckedCreateInput) => {
+  let order: number;
+
+  if (!lane.order) {
+    const laneData = await db.lane.findMany();
+    order = laneData.length;
+  } else order = lane.order;
+
+  const res = await db.lane.upsert({
+    where: {
+      id: lane.id || v4(),
+    },
+
+    update: lane,
+
+    create: {
+      ...lane,
+      order,
+    },
+  });
+
+  return res;
+};
+
+export const deleteLane = async (laneId: string) => {
+  const resposne = await db.lane.delete({ where: { id: laneId } });
+  return resposne;
+};
+
+export const getTicketsWithTags = async (pipelineId: string) => {
+  const response = await db.ticket.findMany({
+    where: {
+      Lane: {
+        pipelineId,
+      },
+    },
+    include: { Tags: true, Assigned: true, Customer: true },
+  });
+  return response;
+};
+
+export const _getTicketsWithAllRelations = async (laneId: string) => {
+  const response = await db.ticket.findMany({
+    where: { laneId: laneId },
+    include: {
+      Assigned: true,
+      Customer: true,
+      Lane: true,
+      Tags: true,
+    },
+  });
+  return response;
+};
+
+export const getSubAccountTeamMembers = async (subaccountId: string) => {
+  const subaccountUsersWithAccess = await db.user.findMany({
+    where: {
+      Agency: {
+        SubAccount: {
+          some: {
+            id: subaccountId,
+          },
+        },
+      },
+      role: "SUBACCOUNT_USER",
+      Permissions: {
+        some: {
+          subAccountId: subaccountId,
+          access: true,
+        },
+      },
+    },
+  });
+
+  return subaccountUsersWithAccess;
+};
+
+export const searchContacts = async (searchTerms: string) => {
+  const response = await db.contact.findMany({
+    where: {
+      name: {
+        contains: searchTerms,
+      },
+    },
+  });
+  return response;
+};
+
+export const upsertTicket = async (
+  ticket: Prisma.TicketUncheckedCreateInput,
+  tags: Tag[]
+) => {
+  let order: number;
+  if (!ticket.order) {
+    const tickets = await db.ticket.findMany({
+      where: { laneId: ticket.laneId },
+    });
+    order = tickets.length;
+  } else {
+    order = ticket.order;
+  }
+
+  const response = await db.ticket.upsert({
+    where: {
+      id: ticket.id || v4(),
+    },
+    update: { ...ticket, Tags: { set: tags } },
+    create: { ...ticket, Tags: { connect: tags }, order },
+    include: {
+      Assigned: true,
+      Customer: true,
+      Tags: true,
+      Lane: true,
+    },
+  });
+
+  return response;
 };

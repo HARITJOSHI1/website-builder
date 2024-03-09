@@ -1,30 +1,8 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
-import { cookies } from "next/headers";
-import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import { auth } from "@clerk/nextjs";
-
-interface AuthContext {
-  clerkSessionCookie?: RequestCookie
-}
-
-export const createContextInner = async ({ clerkSessionCookie }: AuthContext) => {
-  return {
-    clerkSessionCookie,
-  };
-};
-
-export const createContext = async (opts: FetchCreateContextFnOptions) => {
-
-  const clerkSessionCookie = cookies().get('__session');
-  return await createContextInner({
-    clerkSessionCookie
-  });
-};
-
-export type Context = Awaited<typeof createContext>;
+import { Context } from "./context";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
@@ -47,17 +25,43 @@ export const {
   procedure: publicProcedure,
 } = t;
 
-export const protectedProcedure = publicProcedure.use(({ ctx, next }) => {
-  const { clerkSessionCookie } = ctx;
-  const authUser = auth();
+export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
+  const { clerkSessionCookie, db, authUser } = ctx;
+  const sessToken = clerkSessionCookie?.value;
+  const jwksUrl = process.env.CLERK_JWKS_URL;
 
-  if (!clerkSessionCookie?.value)
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "You are not allowed to access this route",
+  try {
+    const JWKS = createRemoteJWKSet(new URL(jwksUrl!));
+
+    if (!sessToken)
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not allowed to access this route",
+      });
+
+    const { payload } = await jwtVerify(sessToken, JWKS);
+    console.log('PAYLOAD', payload);
+    
+
+    if (!payload)
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not allowed to access this route",
+      });
+
+    return next({
+      ctx: { clerkSessionCookie, db, authUser },
     });
-
-  return next({
-    ctx: { clerkSessionCookie, authUser },
-  });
+  } 
+  
+  catch (e: any) {
+    if (e.message.includes("exp")) {
+      throw new TRPCError({
+        code: e.code,
+        cause: "token expired",
+        message: "JWT token expired",
+      });
+    }
+    return next();
+  }
 });
