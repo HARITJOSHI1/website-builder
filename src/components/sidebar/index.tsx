@@ -22,6 +22,9 @@ const Sidebar = async ({ id, type }: Props) => {
   // console.log('User', user?.Agency?.SubAccount, id);
   
 
+  // console.log('User', user?.Agency?.SubAccount, id);
+  
+
   if (!user?.Agency) return;
   const details = type === "agency" ? user.Agency : findSubAcc(user, id);
   const isWhiteLabeled = user.Agency.whiteLabel;
