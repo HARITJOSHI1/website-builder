@@ -1,18 +1,10 @@
 import { authMiddleware } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
-import { authStore } from "./shared";
-// This example protects all routes including api/trpc routes
-// Please edit this to allow other routes to be public as needed.
-// See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your Middleware
 
 export default authMiddleware({
   publicRoutes: ["/site", "/api/uploadthing", "/api/(.*)"],
   async beforeAuth(auth, req) {},
   async afterAuth(auth, req) {
-    const { set } = authStore();
-    
-    set(auth);
-
     // rewrite url for domain
     const url = req.nextUrl;
     const searchParams = url.searchParams.toString();

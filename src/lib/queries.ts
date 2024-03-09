@@ -3,18 +3,26 @@
 import { auth, clerkClient } from "@clerk/nextjs";
 import { db } from "./db";
 import { currentUser } from "@clerk/nextjs";
-import { Agency, Plan, Role, SubAccount, User } from "@prisma/client";
+import {
+  Agency,
+  Plan,
+  Role,
+  SubAccount,
+  User,
+  Prisma,
+  Lane,
+  Ticket,
+  Tag,
+} from "@prisma/client";
 import { redirect } from "next/navigation";
 import { v4 } from "uuid";
 import { CreateFunnelFormSchema, CreateMediaType } from "./types";
 import { z } from "zod";
+import { User as AuthUser } from "@clerk/nextjs/server";
 
-export const getAuthUserDetails = async (authUser: AuthUser | null = null) => {
-  if (!authUser) authUser = await currentUser();
-
-export const getAuthUserDetails = async () => {
-  const authUser = await currentUser();
-
+export const getAuthUserDetails = async (
+  authUser: AuthUser | null | undefined
+) => {
   const user = await db.user.findUnique({
     where: {
       email: authUser?.emailAddresses[0].emailAddress,

@@ -2,7 +2,6 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { Context } from "./context";
-import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
@@ -26,42 +25,27 @@ export const {
 } = t;
 
 export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
-  const { clerkSessionCookie, db, authUser } = ctx;
-  const sessToken = clerkSessionCookie?.value;
-  const jwksUrl = process.env.CLERK_JWKS_URL;
+  const { db, clerkAuth, clerkSessionCookie, strategy, isRefreshing } = ctx;
 
-  try {
-    const JWKS = createRemoteJWKSet(new URL(jwksUrl!));
-
-    if (!sessToken)
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You are not allowed to access this route",
+  if (isRefreshing) {
+    if (clerkSessionCookie)
+      return next({
+        ctx: { clerkSessionCookie, db, strategy },
       });
 
-    const { payload } = await jwtVerify(sessToken, JWKS);
-    console.log('PAYLOAD', payload);
-    
-
-    if (!payload)
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You are not allowed to access this route",
-      });
-
-    return next({
-      ctx: { clerkSessionCookie, db, authUser },
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not allowed to access this route",
     });
   } 
   
-  catch (e: any) {
-    if (e.message.includes("exp")) {
-      throw new TRPCError({
-        code: e.code,
-        cause: "token expired",
-        message: "JWT token expired",
-      });
-    }
-    return next();
-  }
+  else if (!clerkAuth?.user)
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not allowed to access this route",
+    });
+
+  return next({
+    ctx: { clerkSessionCookie, db, clerkAuth, strategy },
+  });
 });
