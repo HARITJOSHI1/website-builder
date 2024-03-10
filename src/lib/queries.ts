@@ -481,10 +481,10 @@ export const getSubAccountDetails = async (subAccId: string) => {
   return res;
 };
 
-export const deleteSubAccount = async (subaccountId: string) => {
+export const deleteSubAccount = async (subAccountId: string) => {
   const response = await db.subAccount.delete({
     where: {
-      id: subaccountId,
+      id: subAccountId,
     },
   });
   return response;
@@ -547,14 +547,14 @@ export const getMedia = async (subId: string) => {
 };
 
 export const createMedia = async (
-  subaccountId: string,
+  subAccountId: string,
   mediaFile: CreateMediaType
 ) => {
   const response = await db.media.create({
     data: {
       link: mediaFile.link,
       name: mediaFile.name,
-      subAccountId: subaccountId,
+      subAccountId: subAccountId,
     },
   });
 
@@ -602,7 +602,7 @@ export const getLanesWithTicketAndTags = async (pipelineId: string) => {
 };
 
 export const upsertFunnel = async (
-  subaccountId: string,
+  subAccountId: string,
   funnel: z.infer<typeof CreateFunnelFormSchema> & { liveProducts: string },
   funnelId: string
 ) => {
@@ -612,7 +612,7 @@ export const upsertFunnel = async (
     create: {
       ...funnel,
       id: funnelId || v4(),
-      subAccountId: subaccountId,
+      subAccountId: subAccountId,
     },
   });
 
@@ -733,20 +733,20 @@ export const _getTicketsWithAllRelations = async (laneId: string) => {
   return response;
 };
 
-export const getSubAccountTeamMembers = async (subaccountId: string) => {
+export const getSubAccountTeamMembers = async (subAccountId: string) => {
   const subaccountUsersWithAccess = await db.user.findMany({
     where: {
       Agency: {
         SubAccount: {
           some: {
-            id: subaccountId,
+            id: subAccountId,
           },
         },
       },
       role: "SUBACCOUNT_USER",
       Permissions: {
         some: {
-          subAccountId: subaccountId,
+          subAccountId: subAccountId,
           access: true,
         },
       },
@@ -795,5 +795,41 @@ export const upsertTicket = async (
     },
   });
 
+  return response;
+};
+
+export const deleteTicket = async (ticketId: string) => {
+  const response = await db.ticket.delete({
+    where: {
+      id: ticketId,
+    },
+  });
+
+  return response;
+};
+
+export const getTagsForSubaccount = async (subaccountId: string) => {
+  const response = await db.subAccount.findUnique({
+    where: { id: subaccountId },
+    select: { Tags: true },
+  });
+  return response;
+};
+
+export const upsertTag = async (
+  subaccountId: string,
+  tag: Prisma.TagUncheckedCreateInput
+) => {
+  const response = await db.tag.upsert({
+    where: { id: tag.id || v4(), subAccountId: subaccountId },
+    update: tag,
+    create: { ...tag, subAccountId: subaccountId },
+  });
+
+  return response;
+};
+
+export const deleteTag = async (tagId: string) => {
+  const response = await db.tag.delete({ where: { id: tagId } });
   return response;
 };

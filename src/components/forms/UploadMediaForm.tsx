@@ -25,7 +25,7 @@ import { Button } from "../ui/button";
 import { createMedia, saveActivityLogsNotification } from "@/lib/queries";
 
 type TProps = {
-  subaccountId: string;
+  subAccountId: string;
   closeModal: () => void;
 };
 
@@ -34,7 +34,7 @@ const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
 });
 
-const UploadMediaForm = ({ subaccountId, closeModal }: TProps) => {
+const UploadMediaForm = ({ subAccountId, closeModal }: TProps) => {
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -48,11 +48,11 @@ const UploadMediaForm = ({ subaccountId, closeModal }: TProps) => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await createMedia(subaccountId, values);
+      const response = await createMedia(subAccountId, values);
       await saveActivityLogsNotification({
         agencyId: undefined,
         description: `Uploaded a media file | ${response.name}`,
-        subAccountId: subaccountId,
+        subAccountId: subAccountId,
       });
 
       toast({ title: "Succes", description: "Uploaded media" });

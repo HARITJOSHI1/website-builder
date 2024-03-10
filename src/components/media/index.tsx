@@ -14,15 +14,15 @@ import MediaCard from "./MediaCard";
 
 type TProps = {
   data: SubAccountMedia;
-  subaccountId: string;
+  subAccountId: string;
 };
 
-const Media = ({ data, subaccountId }: TProps) => {
+const Media = ({ data, subAccountId }: TProps) => {
   return (
     <div className="flex flex-col gap-4 w-full h-full">
       <div className="flex justify-between items-center">
         <span className="text-4xl">Media Bucket</span>
-        <MediaUploadButton subaccountId={subaccountId} />
+        <MediaUploadButton subAccountId={subAccountId} />
       </div>
 
       <Command className="bg-transparent">

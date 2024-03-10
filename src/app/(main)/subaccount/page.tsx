@@ -12,6 +12,8 @@ const page = async ({ searchParams }: TProps) => {
   const authUser = await currentUser();
   const agencyId = await verifyAndAcceptInvitation(authUser);
 
+  console.log("Id", agencyId);
+
   if (!agencyId) return <Unauthorized />;
 
   const user = await getAuthUserDetails(authUser);
@@ -29,10 +31,8 @@ const page = async ({ searchParams }: TProps) => {
     );
   }
 
-  console.log('PERMS', subAccPermission);
-  
-
-  if (subAccPermission) return redirect(`/subaccount/${subAccPermission.subAccountId}`);
+  if (subAccPermission?.access)
+    return redirect(`/subaccount/${subAccPermission.subAccountId}`);
   return <Unauthorized />;
 };
 
