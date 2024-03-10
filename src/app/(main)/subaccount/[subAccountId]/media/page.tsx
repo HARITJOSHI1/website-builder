@@ -4,15 +4,15 @@ import { getMedia } from "@/lib/queries";
 import React from "react";
 
 type TProps = {
-  params: { subaccountId: string };
+  params: { subAccountId: string };
 };
 
 const page = async ({ params }: TProps) => {
-  const data = await getMedia(params.subaccountId);
+  const data = await getMedia(params.subAccountId);
 
   return (
     <BlurPage>
-      <Media data={data} subaccountId={params.subaccountId} />
+      <Media data={data} subAccountId={params.subAccountId} />
     </BlurPage>
   );
 };

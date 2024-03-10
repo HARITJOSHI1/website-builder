@@ -13,12 +13,12 @@ import Link from "next/link";
 import React from "react";
 
 type TProps = {
-  subaccountId: string;
+  subAccountId: string;
   pipelines: Pipeline[];
   pipelineId: string;
 };
 
-const PipelineInfoBar = ({ subaccountId, pipelineId, pipelines }: TProps) => {
+const PipelineInfoBar = ({ subAccountId, pipelineId, pipelines }: TProps) => {
   const { setOpen: setOpenModal, setClose } = useModal();
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(pipelineId);
@@ -30,7 +30,7 @@ const PipelineInfoBar = ({ subaccountId, pipelineId, pipelines }: TProps) => {
         title="Create a Pipeline"
         subheading="Pipelines allows you to group tickets into lanes and track your business processes all in one place."
       >
-        <CreatePipelineForm subAccountId={subaccountId} />
+        <CreatePipelineForm subAccountId={subAccountId} />
       </CustomModal>
     )
   }
@@ -63,7 +63,7 @@ const PipelineInfoBar = ({ subaccountId, pipelineId, pipelines }: TProps) => {
                 {pipelines.map((pipeline) => (
                   <Link
                     key={pipeline.id}
-                    href={`/subaccount/${subaccountId}/pipelines/${pipeline.id}`}
+                    href={`/subaccount/${subAccountId}/pipelines/${pipeline.id}`}
                   >
                     <CommandItem
                       key={pipeline.id}

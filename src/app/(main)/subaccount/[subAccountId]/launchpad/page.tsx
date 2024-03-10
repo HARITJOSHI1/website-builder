@@ -14,13 +14,13 @@ import Link from "next/link";
 import React from "react";
 
 type TProps = {
-  params: { subaccountId: string };
+  params: { subAccountId: string };
   searchParams: { state: string; code: string };
 };
 
 const page = async ({ params }: TProps) => {
   const subAccDetails = await db.subAccount.findUnique({
-    where: { id: params.subaccountId },
+    where: { id: params.subAccountId },
   });
 
   if (!subAccDetails) return;

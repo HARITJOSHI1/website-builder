@@ -17,7 +17,7 @@ import React, { ReactNode } from "react";
 type TProps = {
   children: ReactNode;
   params: {
-    subaccountId: string;
+    subAccountId: string;
   };
 };
 
@@ -30,31 +30,30 @@ const layout = async ({ children, params }: TProps) => {
 
   const allPermissions = await getAuthUserDetails(authUser);
   const hasPermission = allPermissions?.Permissions.find(
-    ({ subAccountId, access }) => access && subAccountId === params.subaccountId
+    ({ subAccountId, access }) => access && subAccountId === params.subAccountId
   );
 
   if (!hasPermission) return <Unauthorized />;
-
   let allNotifs: FuncReturnType<typeof getNotificationsAndUser> = [];
 
-  const notifications = await getNotificationsAndUser(agencyId); 
+  const notifications = await getNotificationsAndUser(agencyId);
   if (notifications)
     if ((authUser.privateMetadata.role as Role).includes("AGENCY"))
       allNotifs = notifications;
     else
       allNotifs = notifications.filter(
-        ({ subAccountId }) => subAccountId === params.subaccountId
+        ({ subAccountId }) => subAccountId === params.subAccountId
       );
 
   return (
     <div className="h-screen overflow-hidden" suppressHydrationWarning>
-      <Sidebar id={params.subaccountId} type="subaccount" />
+      <Sidebar id={params.subAccountId} type="subaccount" />
 
       <div className="md:pl-[300px]">
         <InfoBar
           notifications={allNotifs}
           role={authUser.privateMetadata?.role as Role}
-          subAccountId={params.subaccountId}
+          subAccountId={params.subAccountId}
         />
         <div className="relative">
           <BlurPage>{children}</BlurPage>

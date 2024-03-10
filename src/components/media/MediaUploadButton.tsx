@@ -7,10 +7,10 @@ import CustomModal from "../global/CustomModal";
 import UploadMediaForm from "../forms/UploadMediaForm";
 
 type TProps = {
-  subaccountId: string;
+  subAccountId: string;
 };
 
-const MediaUploadButton = ({ subaccountId }: TProps) => {
+const MediaUploadButton = ({ subAccountId }: TProps) => {
   const { setOpen, setClose, isOpen } = useModal();
 
   return (
@@ -22,7 +22,7 @@ const MediaUploadButton = ({ subaccountId }: TProps) => {
             subheading="Upload your file to your media bucket"
           >
             <UploadMediaForm
-              subaccountId={subaccountId}
+              subAccountId={subAccountId}
               closeModal={setClose}
             />
           </CustomModal>

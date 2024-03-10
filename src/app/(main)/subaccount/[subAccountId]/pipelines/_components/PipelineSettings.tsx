@@ -20,11 +20,11 @@ import CreatePipelineForm from "@/components/forms/CreatePipelineForm";
 
 const PipelineSettings = ({
   pipelineId,
-  subaccountId,
+  subAccountId,
   pipelines,
 }: {
   pipelineId: string;
-  subaccountId: string;
+  subAccountId: string;
   pipelines: Pipeline[];
 }) => {
   const router = useRouter();
@@ -54,13 +54,13 @@ const PipelineSettings = ({
                       description: `Deleted a pipeline | ${pipelines.find(
                         ({ id }) => id === pipelineId
                       )?.name}`,
-                      subAccountId: subaccountId,
+                      subAccountId: subAccountId,
                     });
                     toast({
                       title: "Deleted",
                       description: "Pipeline is deleted",
                     });
-                    router.replace(`/subaccount/${subaccountId}/pipelines`);
+                    router.replace(`/subaccount/${subAccountId}/pipelines`);
                   } catch (error) {
                     toast({
                       variant: "destructive",
@@ -77,7 +77,7 @@ const PipelineSettings = ({
         </div>
 
         <CreatePipelineForm
-          subAccountId={subaccountId}
+          subAccountId={subAccountId}
           defaultData={pipelines.find((p) => p.id === pipelineId)}
         />
       </div>

@@ -75,7 +75,7 @@ const CreatePipelineForm: React.FC<CreatePipelineFormProps> = ({
 
       await saveActivityLogsNotification({
         agencyId: undefined,
-        description: `Updates a pipeline | ${response?.name}`,
+        description: `Updated a pipeline | ${response?.name}`,
         subAccountId: subAccountId,
       });
 
