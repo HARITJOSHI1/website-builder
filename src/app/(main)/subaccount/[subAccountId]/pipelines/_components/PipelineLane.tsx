@@ -62,7 +62,6 @@ const PipelineLane: React.FC<PipelaneLaneProps> = ({
     style: "currency",
     currency: "INR",
   });
-  
 
   const laneAmt = useMemo(() => {
     console.log(tickets);
