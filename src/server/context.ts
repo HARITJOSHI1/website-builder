@@ -11,22 +11,22 @@ import { ClerkJWTStrategy, ClerkRedisPayload } from "./utils/ClerkJWTStrategy";
 import { type Redis } from "ioredis";
 
 interface ClerkAuthContext {
-  clerkAuth: { user?: User };
+  clerkAuth?: { user?: User };
   clerkSessionCookie?: RequestCookie;
-  strategy: ClerkJWTStrategy;
+  strategy?: ClerkJWTStrategy;
   isRefreshing?: boolean;
 }
 
 interface CreateInnerContext {
   clerkSessionCookie?: RequestCookie;
-  req: Request;
-  resHeaders: Headers;
+  req?: Request;
+  resHeaders?: Headers;
 }
 
 interface InnerContextReturnType extends ClerkAuthContext {
   db: PrismaClient;
-  redis: Redis;
-  resHeaders: Headers;
+  redis?: Redis;
+  resHeaders?: Headers;
 }
 
 export const createContextInner = async ({
@@ -41,7 +41,7 @@ export const createContextInner = async ({
 
   const strategy = new ClerkJWTStrategy(sessToken, jwksUrl, clerkBEUrL, redis);
 
-  if (req.url.includes("refresh"))
+  if (req?.url.includes("refresh"))
     return {
       clerkSessionCookie,
       db,

@@ -14,6 +14,8 @@ export const RefreshTokenRouter = router({
       const { strategy, redis, resHeaders } = ctx;
       const { userId } = input;
 
+      if(!redis || !strategy || !resHeaders) return;
+      
       try {
         const data = await redis.hget(process.env.CLERK_JWKS_URL!, userId);
 
@@ -35,7 +37,6 @@ export const RefreshTokenRouter = router({
           });
 
         resHeaders.append("Authorization", `Bearer ${token}`);
-        await redis.del(process.env.CLERK_JWKS_URL!);
 
         return {
           message: "Token generated successfully",

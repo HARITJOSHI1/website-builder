@@ -233,9 +233,11 @@ export const deletingAgency = async (agencyId: string) => {
   return res;
 };
 
-export const initUser = async (newUser: Partial<User>) => {
-  const user = await currentUser();
-
+export const initUser = async (
+  newUser: Partial<User>,
+  authUser: AuthUser | null = null
+) => {
+  const user = authUser || (await currentUser());
   if (!user) return;
 
   const userData = await db.user.upsert({
