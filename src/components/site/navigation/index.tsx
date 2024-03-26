@@ -23,7 +23,7 @@ const Navigation = ({ user }: Props) => {
             alt="sassy-logo"
           />
 
-          <span className="text-xl font-bold">Plura</span>
+          <span className="text-xl font-bold">Comfort</span>
         </aside>
 
         <nav className="hidden md:block absolute left-[50%] top-[50%] transform translate-x-[-50%] translate-y-[-50%]">

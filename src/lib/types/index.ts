@@ -95,3 +95,8 @@ export type TicketWithTags = Prisma.PromiseReturnType<typeof getTicketsWithTags>
 export type TicketDetails = Prisma.PromiseReturnType<
   typeof _getTicketsWithAllRelations
 >
+
+export const ContactUserFormSchema = z.object({
+  name: z.string().min(1, 'Required'),
+  email: z.string().email(),
+})
