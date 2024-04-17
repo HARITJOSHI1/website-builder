@@ -47,6 +47,7 @@ import {
 } from "../ui/alert-dialog";
 
 import { v4 } from "uuid";
+import axios from "axios";
 
 type TProps = {
   data?: Partial<Agency>;
@@ -123,12 +124,17 @@ const AgencyDetails = ({ data }: TProps) => {
           },
         };
 
+        const customerRes = await axios.post(
+          "/api/stripe/create-customer",
+          bodyData
+        );
+        const customerData: { customerId: string } = customerRes.data;
         newUserData = await initUser({ role: "AGENCY_OWNER" });
 
-        if (!data?.customerId) {
+        if (!data?.customerId && !customerData.customerId) {
           await upsertAgency({
             id: data?.id ? data.id : v4(),
-            customerId: data?.customerId || custId || "",
+            customerId: data?.customerId || customerData.customerId || "",
             address: values.address,
             agencyLogo: values.agencyLogo,
             city: values.city,

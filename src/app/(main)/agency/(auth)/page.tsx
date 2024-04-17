@@ -18,8 +18,6 @@ const Agency = async ({ searchParams }: TAgency) => {
   const agencyId = await verifyAndAcceptInvitation(authUser);
   console.log("AGENCY ID: ", { agencyId });
 
-  await new Promise((r) => setTimeout(() => r(1), 5000));
-  
   // get user details
   const user = await getAuthUserDetails(authUser);
 
@@ -43,7 +41,7 @@ const Agency = async ({ searchParams }: TAgency) => {
 
       return redirect(`/agency/${agencyId}`);
     }
-  } 
+  }
   // else return <div>Not Authorized</div>;
 
   return (

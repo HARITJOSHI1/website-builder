@@ -23,6 +23,7 @@ const layout = async ({ params, children }: TProps) => {
 
   if (!authUser) return redirect("/");
   if (!agencyId) return redirect("/agency");
+  
 
   if (!(authUser.privateMetadata.role as string).includes("AGENCY"))
     return <Unauthorized />;

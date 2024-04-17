@@ -12,6 +12,7 @@ type Props = {
 };
 
 const Navigation = ({ user }: Props) => {
+  
   return (
     <>
       <div className="p-4 fixed top-0 left-0 right-0 z-20 flex items-center justify-between before:block before:w-full before:h-full before:absolute before:top-0 before:left-0 before:opacity-10 before:z-[-200] backdrop-blur-md">
@@ -40,7 +41,7 @@ const Navigation = ({ user }: Props) => {
             href={"/agency"}
             className="bg-primary text-white p-2 px-4 rounded-md hover:bg-primary/80"
           >
-            Login
+            {user?.id ? "Dashboard" : "Login"}
           </Link>
           <UserButton />
           <ModeToggle />
