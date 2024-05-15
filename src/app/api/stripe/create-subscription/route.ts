@@ -48,9 +48,9 @@ export const POST = async (req: Request) => {
       );
 
       return NextResponse.json({
-        subscriptionId: subscriptions.id,
+        subscriptionId: stripeSubscription.id,
         //@ts-ignore
-        clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+        clientSecret: stripeSubscription.latest_invoice.payment_intent.client_secret,
       });
     } else {
       console.log("Creating a subscription....");

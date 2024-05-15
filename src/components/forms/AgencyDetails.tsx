@@ -124,14 +124,24 @@ const AgencyDetails = ({ data }: TProps) => {
           },
         };
 
-        const customerRes = await axios.post(
+        const customerRes = await fetch(
           "/api/stripe/create-customer",
-          bodyData
+
+          {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json",
+            },
+
+            body: JSON.stringify(bodyData),
+          }
         );
-        const customerData: { customerId: string } = customerRes.data;
+
+        const customerData: { customerId: string } = await customerRes.json();
         newUserData = await initUser({ role: "AGENCY_OWNER" });
 
-        if (!data?.customerId && !customerData.customerId) {
+        if (data?.customerId || customerData.customerId) {
+
           await upsertAgency({
             id: data?.id ? data.id : v4(),
             customerId: data?.customerId || customerData.customerId || "",

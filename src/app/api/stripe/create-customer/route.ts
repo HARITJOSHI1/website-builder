@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       address,
       shipping,
     });
-    return Response.json({ customerId: customer.id });
+    return NextResponse.json({ customerId: customer.id });
   } catch (error) {
     console.log("🔴 Error", error);
     return new NextResponse("Internal Server Error", { status: 500 });
