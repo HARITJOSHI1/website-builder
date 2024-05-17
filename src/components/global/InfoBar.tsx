@@ -70,7 +70,7 @@ const InfoBar = ({ notifications, role, subAccountId }: TProps) => {
               onOpenAutoFocus={async () => {
                 if (notifications) {
                   const newNotifications = await getNotificationsAndUser(
-                    notifications[0].agencyId
+                    notifications[0]?.agencyId
                   );
 
                   if (newNotifications) {

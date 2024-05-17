@@ -31,7 +31,7 @@ import Warning from "@/components/icons/warning";
 export const pricingCards = [
   {
     title: "Starter",
-    description: "Perfect for trying out plura",
+    description: "Perfect for trying out Comfort",
     price: "Free",
     duration: "",
     highlight: "Key features",
@@ -41,7 +41,7 @@ export const pricingCards = [
   {
     title: "Unlimited Saas",
     description: "The ultimate agency kit",
-    price: "$199",
+    price: "₹1500",
     duration: "month",
     highlight: "Key features",
     features: ["Rebilling", "24/7 Support team"],
@@ -50,7 +50,7 @@ export const pricingCards = [
   {
     title: "Basic",
     description: "For serious agency owners",
-    price: "$49",
+    price: "₹200",
     duration: "month",
     highlight: "Everything in Starter, plus",
     features: ["Unlimited Sub accounts", "Unlimited Team members"],

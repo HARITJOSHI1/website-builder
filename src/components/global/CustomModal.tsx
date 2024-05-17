@@ -22,7 +22,7 @@ const CustomModal = ({ children, defaultOpen, subheading, title }: TProps) => {
 
   return (
     <Dialog open={isOpen || defaultOpen} onOpenChange={setClose}>
-      <DialogContent className="overflow-scroll md:max-h-[700px] md:h-fit h-screen bg-card">
+      <DialogContent className="overflow-auto md:max-h-[700px] md:h-fit h-screen bg-card">
         <DialogHeader className="pt-8 text-left flex flex-col gap-2">
           <DialogTitle className="text-2xl font-bold">{title}</DialogTitle>
           <DialogDescription>{subheading}</DialogDescription>
