@@ -75,7 +75,7 @@ const PricingCard = ({
             <CardTitle>{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>
-          <p className="text-6xl font-bold">
+          <p className="text-6xl font-bold flex flex-row items-end">
             {amt}
             <small className="text-xs font-light text-muted-foreground">
               {duration}

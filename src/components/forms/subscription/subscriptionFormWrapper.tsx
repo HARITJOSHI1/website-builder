@@ -21,6 +21,7 @@ type Props = {
 
 const SubscriptionFormWrapper = ({ customerId, planExists }: Props) => {
   const { data, setClose } = useModal();
+  const [isPlanUpgraded, setIsPlanUpgraded] = useState(false);
   const router = useRouter();
   const [selectedPriceId, setSelectedPriceId] = useState<Plan | "">(
     data.plans?.defaultPlanId || ""
@@ -43,8 +44,11 @@ const SubscriptionFormWrapper = ({ customerId, planExists }: Props) => {
 
   useEffect(() => {
     if (!selectedPriceId) return;
+    if (isPlanUpgraded) return;
 
     const createSecret = async () => {
+      console.log("Called with price id", selectedPriceId);
+
       const res = await fetch("/api/stripe/create-subscription", {
         method: "POST",
         headers: {
@@ -56,7 +60,7 @@ const SubscriptionFormWrapper = ({ customerId, planExists }: Props) => {
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json();      
 
       setSubscription({
         clientSecret: data.clientSecret,
@@ -68,18 +72,24 @@ const SubscriptionFormWrapper = ({ customerId, planExists }: Props) => {
           description: "Your plan has been successfully upgraded!",
         });
         setClose();
-        router.refresh();
+        setIsPlanUpgraded(true);
+        
+        router.refresh(); 
       }
     };
 
     createSecret();
   }, [data, selectedPriceId, customerId]);
+
   return (
     <div className="border-none transition-all">
       <div className="flex flex-col gap-4">
         {data.plans?.list.map((price) => (
           <Card
-            onClick={() => setSelectedPriceId(price.id as Plan)}
+            onClick={() => {
+              setIsPlanUpgraded(false);
+              setSelectedPriceId(price.id as Plan);
+            }}
             className={clsx("relative cursor-pointer transition-all", {
               "border-primary": selectedPriceId === price.id,
             })}
@@ -109,10 +119,7 @@ const SubscriptionFormWrapper = ({ customerId, planExists }: Props) => {
           <>
             <h1 className="text-xl">Payment Method</h1>
             <Elements stripe={getStripe()} options={options}>
-              <SubscriptionForm
-                selectedPriceId={selectedPriceId}
-                clientSecret={subscription.clientSecret}
-              />
+              <SubscriptionForm selectedPriceId={selectedPriceId} />
             </Elements>
           </>
         )}

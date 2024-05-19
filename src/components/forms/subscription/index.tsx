@@ -11,10 +11,9 @@ import React, { useState } from "react";
 
 type Props = {
   selectedPriceId: string | Plan;
-  clientSecret: string;
 };
 
-const SubscriptionForm = ({ selectedPriceId, clientSecret }: Props) => {
+const SubscriptionForm = ({ selectedPriceId }: Props) => {
   const { toast } = useToast();
   const elements = useElements();
   const stripeHook = useStripe();

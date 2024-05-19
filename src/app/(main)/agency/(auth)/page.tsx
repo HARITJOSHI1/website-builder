@@ -30,12 +30,12 @@ const Agency = async ({ searchParams }: TAgency) => {
         );
 
       if (searchParams.state) {
-        const stateAgencyPath = searchParams.state.split("__")[0];
-        const stateAgencyId = searchParams.state.split("___")[0];
+        const stateAgencyPath = searchParams.state.split("___")[0];
+        const stateAgencyId = searchParams.state.split("___")[1];
 
         if (!stateAgencyId) return <div>Not Authorized</div>;
         return redirect(
-          `/agent/${stateAgencyId}/${stateAgencyPath}?code=${searchParams.code}`
+          `/agency/${stateAgencyId}/${stateAgencyPath}?code=${searchParams.code}`
         );
       }
 

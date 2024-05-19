@@ -27,7 +27,7 @@ const page = async ({ searchParams }: TProps) => {
 
     if (!stateSubAccId) return <Unauthorized />;
     return redirect(
-      `/subaacount/${stateSubAccId}/${statePath}?code=${searchParams.code}`
+      `/subaccount/${stateSubAccId}/${statePath}?code=${searchParams.code}`
     );
   }
 

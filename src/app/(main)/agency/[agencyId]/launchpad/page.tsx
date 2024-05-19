@@ -7,6 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { db } from "@/lib/db";
+import { stripe } from "@/lib/stripe";
+import { getStripeOAuthLink } from "@/lib/utils";
 import { CheckCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,7 +19,7 @@ type Props = {
   searchParams: { code: string };
 };
 
-const page = async ({ params }: Props) => {
+const page = async ({ params, searchParams }: Props) => {
   const agencyDetails = await db.agency.findUnique({
     where: { id: params.agencyId },
   });
@@ -34,6 +36,33 @@ const page = async ({ params }: Props) => {
     agencyDetails.name &&
     agencyDetails.state &&
     agencyDetails.zipCode;
+
+  const stripeOAuthLink = getStripeOAuthLink(
+    "agency",
+    `launchpad___${agencyDetails.id}`
+  );
+
+  let connectedStripeAcc = false;
+
+  if (searchParams.code) {
+    if (!agencyDetails.connectAccountId) {
+      try {
+        const res = await stripe.oauth.token({
+          grant_type: "authorization_code",
+          code: searchParams.code,
+        });
+
+        await db.agency.update({
+          where: { id: agencyDetails.id },
+          data: { connectAccountId: res.stripe_user_id },
+        });
+
+        connectedStripeAcc = true;
+      } catch {
+        console.log("🔴 Could not connect stripe account");
+      }
+    }
+  }
 
   return (
     <div className="flex flex-col justify-center items-center">
@@ -74,6 +103,20 @@ const page = async ({ params }: Props) => {
                   dashboard.
                 </p>
               </div>
+
+              {agencyDetails.connectAccountId || connectedStripeAcc ? (
+                <CheckCircleIcon
+                  size={50}
+                  className=" text-primary p-2 flex-shrink-0"
+                />
+              ) : (
+                <Link
+                  className="bg-primary py-2 px-4 rounded-md text-white"
+                  href={stripeOAuthLink}
+                >
+                  Start
+                </Link>
+              )}
             </div>
 
             <div className="flex justify-between items-center w-full border p-4 rounded-lg gap-2">

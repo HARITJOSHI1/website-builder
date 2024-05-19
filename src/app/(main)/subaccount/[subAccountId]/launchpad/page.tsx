@@ -8,6 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { db } from "@/lib/db";
+import { stripe } from "@/lib/stripe";
+import { getStripeOAuthLink } from "@/lib/utils";
 import { CheckCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,7 +20,7 @@ type TProps = {
   searchParams: { state: string; code: string };
 };
 
-const page = async ({ params }: TProps) => {
+const page = async ({ params, searchParams }: TProps) => {
   const subAccDetails = await db.subAccount.findUnique({
     where: { id: params.subAccountId },
   });
@@ -36,10 +38,32 @@ const page = async ({ params }: TProps) => {
     subAccDetails.state &&
     subAccDetails.zipCode;
 
+  const stripeOAuthLink = getStripeOAuthLink(
+    "subaccount",
+    `launchpad___${subAccDetails.id}`
+  );
 
-    // WIP: wire up stripe
-  const connectedStripeAccount = null;
-  const stripeOAuthLink = null;
+  let connectedStripeAcc = false;
+
+  if (searchParams.code) {
+    if (!subAccDetails.connectAccountId) {
+      try {
+        const res = await stripe.oauth.token({
+          grant_type: "authorization_code",
+          code: searchParams.code,
+        });
+
+        await db.agency.update({
+          where: { id: subAccDetails.id },
+          data: { connectAccountId: res.stripe_user_id },
+        });
+
+        connectedStripeAcc = true;
+      } catch {
+        console.log("🔴 Could not connect stripe account");
+      }
+    }
+  }
 
   return (
     <BlurPage>
@@ -69,7 +93,7 @@ const page = async ({ params }: TProps) => {
               <div className="flex justify-between items-center w-full h-20 border p-4 rounded-lg">
                 <div className="flex items-center gap-4">
                   <Image
-                    src="/assets/stripelogo.png"
+                    src="/assets/stripeLogo.png"
                     alt="App logo"
                     height={80}
                     width={80}
@@ -80,7 +104,7 @@ const page = async ({ params }: TProps) => {
                     used to run payouts.
                   </p>
                 </div>
-                {subAccDetails.connectAccountId || connectedStripeAccount ? (
+                {subAccDetails.connectAccountId || connectedStripeAcc ? (
                   <CheckCircleIcon
                     size={50}
                     className=" text-primary p-2 flex-shrink-0"
@@ -88,7 +112,7 @@ const page = async ({ params }: TProps) => {
                 ) : (
                   <Link
                     className="bg-primary py-2 px-4 rounded-md text-white"
-                    href={stripeOAuthLink || ''}
+                    href={stripeOAuthLink || ""}
                   >
                     Start
                   </Link>
