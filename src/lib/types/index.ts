@@ -11,6 +11,7 @@ import {
 import {
   _getTicketsWithAllRelations,
   getAuthUserDetails,
+  getFunnels,
   getMedia,
   getPipelineDetails,
   getTicketsWithTags,
@@ -128,5 +129,8 @@ export type StripeCustomerType = {
   address: Address;
 };
 
-
 export type PricesList = Stripe.ApiList<Stripe.Price>;
+
+export type FunnelsForSubAccount = Prisma.PromiseReturnType<
+  typeof getFunnels
+>[0];

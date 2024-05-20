@@ -53,13 +53,13 @@ const page = async ({ params, searchParams }: TProps) => {
           code: searchParams.code,
         });
 
-        await db.agency.update({
+        await db.subAccount.update({
           where: { id: subAccDetails.id },
           data: { connectAccountId: res.stripe_user_id },
         });
 
         connectedStripeAcc = true;
-      } catch {
+      } catch (err) {
         console.log("🔴 Could not connect stripe account");
       }
     }

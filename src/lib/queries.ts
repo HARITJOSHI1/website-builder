@@ -86,7 +86,7 @@ export const saveActivityLogsNotification = async ({
   if (!agencyId) {
     if (!subAccountId)
       throw new Error(
-        "You need to provide atleast an aegency id or subaccount id"
+        "You need to provide atleast an agency id or subaccount id"
       );
 
     const res = await db.subAccount.findUnique({
@@ -612,7 +612,7 @@ export const upsertFunnel = async (
     create: {
       ...funnel,
       id: funnelId || v4(),
-      subAccountId: subAccountId,
+      subAccountId,
     },
   });
 
@@ -834,7 +834,6 @@ export const deleteTag = async (tagId: string) => {
   return response;
 };
 
-
 export const upsertContact = async (
   contact: Prisma.ContactUncheckedCreateInput
 ) => {
@@ -842,6 +841,38 @@ export const upsertContact = async (
     where: { id: contact.id || v4() },
     update: contact,
     create: contact,
+  });
+  return response;
+};
+
+export const getFunnels = async (id: string) => {
+  return await db.funnel.findMany({
+    where: { subAccountId: id },
+    include: { FunnelPages: true },
+  });
+};
+
+export const getFunnel = async (id: string) => {
+  return await db.funnel.findUnique({
+    where: { id: id },
+    include: {
+      FunnelPages: {
+        orderBy: {
+          order: "asc",
+        },
+      },
+    },
+  });
+};
+
+
+export const updateFunnelProducts = async (
+  products: string,
+  funnelId: string
+) => {
+  const data = await db.funnel.update({
+    where: { id: funnelId },
+    data: { liveProducts: products },
   })
-  return response
+  return data
 }
