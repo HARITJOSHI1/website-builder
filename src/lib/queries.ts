@@ -17,8 +17,13 @@ import {
 import { redirect } from "next/navigation";
 import { use } from "react";
 import { v4 } from "uuid";
-import { CreateFunnelFormSchema, CreateMediaType } from "./types";
+import {
+  CreateFunnelFormSchema,
+  CreateMediaType,
+  UpsertFunnelPage,
+} from "./types";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 
 export const getAuthUserDetails = async (authUser: AuthUser | null = null) => {
   if (!authUser) authUser = await currentUser();
@@ -865,7 +870,6 @@ export const getFunnel = async (id: string) => {
   });
 };
 
-
 export const updateFunnelProducts = async (
   products: string,
   funnelId: string
@@ -873,6 +877,42 @@ export const updateFunnelProducts = async (
   const data = await db.funnel.update({
     where: { id: funnelId },
     data: { liveProducts: products },
-  })
-  return data
-}
+  });
+  return data;
+};
+
+export const upsertFunnelPage = async (
+  subaccountId: string,
+  funnelPage: UpsertFunnelPage,
+  funnelId: string
+) => {
+  if (!subaccountId || !funnelId) return;
+  const response = await db.funnelPage.upsert({
+    where: { id: funnelPage.id || "" },
+    update: { ...funnelPage },
+    create: {
+      ...funnelPage,
+      content: funnelPage.content
+        ? funnelPage.content
+        : JSON.stringify([
+            {
+              content: [],
+              id: "__body",
+              name: "Body",
+              styles: { backgroundColor: "white" },
+              type: "__body",
+            },
+          ]),
+      funnelId,
+    },
+  });
+
+  revalidatePath(`/subaccount/${subaccountId}/funnels/${funnelId}`, "page");
+  return response;
+};
+
+export const deleteFunnelPage = async (funnelPageId: string) => {
+  const response = await db.funnelPage.delete({ where: { id: funnelPageId } });
+
+  return response;
+};

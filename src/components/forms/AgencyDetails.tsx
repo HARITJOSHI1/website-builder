@@ -64,6 +64,7 @@ const FormSchema = z.object({
   state: z.string().min(1),
   country: z.string().min(1),
   agencyLogo: z.string().min(1),
+  goal: z.number().min(0),
 });
 
 const AgencyDetails = ({ data }: TProps) => {
@@ -87,6 +88,7 @@ const AgencyDetails = ({ data }: TProps) => {
       state: data?.state,
       country: data?.country,
       agencyLogo: data?.agencyLogo,
+      goal: data?.goal,
     },
   });
 
@@ -95,6 +97,8 @@ const AgencyDetails = ({ data }: TProps) => {
   console.log({ isLoading, isSubmitting, isSubmitted });
 
   const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
+    console.log('yayyyyyyyy');
+    
     try {
       let newUserData;
       let custId;
@@ -141,7 +145,6 @@ const AgencyDetails = ({ data }: TProps) => {
         newUserData = await initUser({ role: "AGENCY_OWNER" });
 
         if (data?.customerId || customerData.customerId) {
-
           await upsertAgency({
             id: data?.id ? data.id : v4(),
             customerId: data?.customerId || customerData.customerId || "",
@@ -158,7 +161,7 @@ const AgencyDetails = ({ data }: TProps) => {
             updatedAt: new Date(),
             companyEmail: values.companyEmail,
             connectAccountId: "",
-            goal: 5,
+            goal: values.goal,
           });
 
           toast({

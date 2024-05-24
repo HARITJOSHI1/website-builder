@@ -5,6 +5,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import React from "react";
 import FunnelSettings from "./_components/FunnelSettings";
+import FunnelSteps from "./_components/FunnelSteps";
 
 type Props = {
   params: {
@@ -34,13 +35,12 @@ const page = async ({ params }: Props) => {
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         <TabsContent value="steps">
-          {/* <FunnelSteps
+          <FunnelSteps
             funnel={funnelPages}
-            subaccountId={params.subaccountId}
+            subaccountId={params.subAccountId}
             pages={funnelPages.FunnelPages}
             funnelId={params.funnelId}
-          /> */}
-          a
+          />
         </TabsContent>
         <TabsContent value="settings">
           <FunnelSettings

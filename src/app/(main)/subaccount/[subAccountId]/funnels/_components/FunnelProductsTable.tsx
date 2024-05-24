@@ -35,7 +35,6 @@ const FunnelProductsTable: React.FC<FunnelProductsTableProps> = ({
     { productId: string; recurring: boolean }[] | []
   >(JSON.parse(defaultData.liveProducts || "[]"));
 
-
   const handleSaveProducts = async () => {
     setIsLoading(true);
     const response = await updateFunnelProducts(
@@ -51,7 +50,6 @@ const FunnelProductsTable: React.FC<FunnelProductsTableProps> = ({
     router.refresh();
   };
 
-  
   const handleAddProduct = async (product: Stripe.Product) => {
     const productIdExists = liveProducts.find(
       //@ts-ignore
@@ -121,7 +119,7 @@ const FunnelProductsTable: React.FC<FunnelProductsTableProps> = ({
                 }
               </TableCell>
               <TableCell className="text-right">
-                $
+                ₹
                 {
                   //@ts-ignore
                   product.default_price?.unit_amount / 100

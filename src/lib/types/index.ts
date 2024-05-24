@@ -84,7 +84,7 @@ export type LaneDetails = Lane & {
 export const CreateFunnelFormSchema = z.object({
   name: z.string().min(1),
   description: z.string(),
-  subDomainName: z.string().optional(),
+  subDomainName: z.string().min(1, "Subdomain must be provided"),
   favicon: z.string().optional(),
 });
 
@@ -134,3 +134,10 @@ export type PricesList = Stripe.ApiList<Stripe.Price>;
 export type FunnelsForSubAccount = Prisma.PromiseReturnType<
   typeof getFunnels
 >[0];
+
+export type UpsertFunnelPage = Prisma.FunnelPageCreateWithoutFunnelInput;
+
+export const FunnelPageSchema = z.object({
+  name: z.string().min(1),
+  pathName: z.string().optional(),
+});
