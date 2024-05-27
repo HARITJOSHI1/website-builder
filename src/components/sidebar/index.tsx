@@ -14,21 +14,18 @@ const findSubAcc = (
   id: string
 ) => user?.Agency?.SubAccount.find((subAcc) => subAcc.id === id);
 
-
 const Sidebar = async ({ id, type }: Props) => {
   const authUser = await currentUser();
   const user = await getAuthUserDetails(authUser);
 
   // console.log('User', user?.Agency?.SubAccount, id);
-  
 
   if (!user?.Agency) return;
   const details = type === "agency" ? user.Agency : findSubAcc(user, id);
   const isWhiteLabeled = user.Agency.whiteLabel;
-  
+
   if (!details) return;
 
-  
   let sidebarLogo = user.Agency.agencyLogo || "/assets/plura-logo";
 
   if (!isWhiteLabeled) {

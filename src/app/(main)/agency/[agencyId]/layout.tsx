@@ -23,7 +23,6 @@ const layout = async ({ params, children }: TProps) => {
 
   if (!authUser) return redirect("/");
   if (!agencyId) return redirect("/agency");
-  
 
   if (!(authUser.privateMetadata.role as string).includes("AGENCY"))
     return <Unauthorized />;
@@ -31,7 +30,10 @@ const layout = async ({ params, children }: TProps) => {
   let allNotifs: FuncReturnType<typeof getNotificationsAndUser> = [];
 
   const notifications = await getNotificationsAndUser(agencyId);
-  if (notifications) allNotifs = notifications.filter(({agencyId}) => agencyId === params.agencyId);
+  if (notifications)
+    allNotifs = notifications.filter(
+      ({ agencyId }) => agencyId === params.agencyId
+    );
 
   return (
     <div className="h-screen overflow-hidden" suppressHydrationWarning>

@@ -6,7 +6,7 @@ import {
   SubAccountSidebarOption,
   Agency,
 } from "@prisma/client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import {
@@ -65,7 +65,7 @@ const MenuOptions = ({
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) return;
+  if (!isMounted) return null;
 
   return (
     <Sheet modal={false} {...openState}>
@@ -297,7 +297,7 @@ const MenuOptions = ({
         </div>
       </SheetContent>
     </Sheet>
-  );
+  )
 };
 
 export default MenuOptions;
